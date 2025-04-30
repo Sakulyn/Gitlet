@@ -132,27 +132,38 @@ public class Repository {
      *
      */
     public static void log() {
-        curCommit = getCurCommit();
-        displayCommitTree(curCommit);
+        Commit commit = getCurCommit();
+        while (commit != null) {
+            commit = displayCommit(commit);
+        }
     }
 
-    public static void displayCommitTree(Commit commit) {
-        while (commit != null) {
-            List<String> parentRefs = commit.getParentRefs();
-            System.out.println("===");
-            System.out.println("commit " + commit.getId());
-            if (parentRefs.size() > 1) {
-                System.out.printf("Merge:");
-                for (String parent : parentRefs) {
-                    System.out.printf(" " + parent.substring(7));
-                }
-            }
-            System.out.println("Date: " + commit.getTimestamp());
-            System.out.println(commit.getMessage() + "\n");
-            if(parentRefs.size() == 0)
-                break;
-            commit = getCommitById(parentRefs.get(0));
+    public static void globalLog() {
+        List<String> filenames = plainFilenamesIn(OBJECTS_DIR);
+        for (String filename : filenames) {
+            try {
+                File file = join(OBJECTS_DIR, filename);
+                Commit commit = readObject(file, Commit.class);
+                displayCommit(commit);
+            } catch (Exception e) {}
         }
+    }
+
+    public static Commit displayCommit(Commit commit) {
+        List<String> parentRefs = commit.getParentRefs();
+        System.out.println("===");
+        System.out.println("commit " + commit.getId());
+        if (parentRefs.size() > 1) {
+            System.out.printf("Merge:");
+            for (String parent : parentRefs) {
+                System.out.printf(" " + parent.substring(7));
+            }
+        }
+        System.out.println("Date: " + commit.getTimestamp());
+        System.out.println(commit.getMessage() + "\n");
+        if (parentRefs.size() == 0)
+            return null;
+        return getCommitById(parentRefs.get(0));
     }
 
     public static void clearStage() {
