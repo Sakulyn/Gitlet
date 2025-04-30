@@ -31,6 +31,10 @@ public class Main {
                 Repository.add(args[1]);
                 break;
             // TODO: FILL THE REST IN
+            case "commit":
+                checkNumberOfOperands(inputSize, 2);
+                Repository.commit(args[1]);
+                break;
             default:
                 exitWithMsg("No command with that name exists.");
         }

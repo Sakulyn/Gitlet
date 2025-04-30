@@ -8,10 +8,10 @@ import static gitlet.Utils.*;
 
 public class Blob implements Serializable {
     private String id;
-    private String path;
+    private String pathOfRawFile;
     private byte[] bytes;
-    public Blob(String path, byte[] bytes) {
-        this.path = path;
+    public Blob(String pathOfRawFile, byte[] bytes) {
+        this.pathOfRawFile = pathOfRawFile;
         this.bytes = bytes;
         this.id = generateId();
     }
@@ -21,7 +21,7 @@ public class Blob implements Serializable {
         writeObject(file, this);
     }
     public String generateId() {
-        return sha1(path, bytes.toString());
+        return sha1(pathOfRawFile, bytes.toString());
     }
     public String getId() {
         return id;

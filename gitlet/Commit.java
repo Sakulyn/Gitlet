@@ -42,6 +42,14 @@ public class Commit implements Serializable {
         id = generateId();
     }
 
+    public Commit(String message, Map<String, String> pathToBlobRef, List<String> parentRefs) {
+        this.pathToBlobRef = pathToBlobRef;
+        this.parentRefs = parentRefs;
+        this.message = message;
+        this.timestamp = dateToTimestamp(new Date());
+        this.id = generateId();
+    }
+
     public void save() {
         File file = join(OBJECTS_DIR, id);
         writeObject(file, this);

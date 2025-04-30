@@ -1,6 +1,8 @@
 package gitlet;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 // TODO: any imports you need here
 import static gitlet.Main.exitWithMsg;
@@ -80,6 +82,31 @@ public class Repository {
         stage.save();
     }
 
+    public static void commit(String message) {
+        getCurStage();
+        if(curAddStageMap.isEmpty() && curRemoveStageMap.isEmpty()) {
+            exitWithMsg("No changes added to the commit.");
+        }
+        if(message.isEmpty()) {
+            exitWithMsg("Please enter a commit message.");
+        }
+        Map<String, String> pathToBlobRef = curAddStageMap;
+        pathToBlobRef.putAll(curRemoveStageMap);
+        String curCommitId = getCurCommitId();
+        List<String> parentRefs = new ArrayList<>();
+        parentRefs.add(curCommitId);
+        Commit commit = new Commit(message, pathToBlobRef, parentRefs);
+        commit.save();
+        clearStage();
+        File curBranchFile = join(HEADS_DIR, curBranch);
+        writeContents(curBranchFile, commit.getId());
+    }
+
+    public static void clearStage() {
+        Stage stage = new Stage();
+        stage.save();
+    }
+
     public static void getCurStage() {
         Stage curStage = new Stage();
         if(INDEX.exists()) {
@@ -90,9 +117,14 @@ public class Repository {
     }
 
     public static Commit getCurCommit() {
+        String commitId = getCurCommitId();
+        return getCommitById(commitId);
+    }
+
+    public static String getCurCommitId() {
         curBranch = getCurBranch();
         String commitId = getLatestCommitIdOfBranch(curBranch);
-        return getCommitById(commitId);
+        return commitId;
     }
 
     public static Commit getCommitById(String id) {
