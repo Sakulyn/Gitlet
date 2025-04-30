@@ -123,6 +123,38 @@ public class Repository {
         stage.save();
     }
 
+    /**
+     * format
+     * ===
+     * commit e881c9575d180a215d1a636545b8fd9abfb1d2bb
+     * Date: Wed Dec 31 16:00:00 1969 -0800
+     * initial commit
+     *
+     */
+    public static void log() {
+        curCommit = getCurCommit();
+        displayCommitTree(curCommit);
+    }
+
+    public static void displayCommitTree(Commit commit) {
+        while (commit != null) {
+            List<String> parentRefs = commit.getParentRefs();
+            System.out.println("===");
+            System.out.println("commit " + commit.getId());
+            if (parentRefs.size() > 1) {
+                System.out.printf("Merge:");
+                for (String parent : parentRefs) {
+                    System.out.printf(" " + parent.substring(7));
+                }
+            }
+            System.out.println("Date: " + commit.getTimestamp());
+            System.out.println(commit.getMessage() + "\n");
+            if(parentRefs.size() == 0)
+                break;
+            commit = getCommitById(parentRefs.get(0));
+        }
+    }
+
     public static void clearStage() {
         Stage stage = new Stage();
         stage.save();
@@ -150,6 +182,8 @@ public class Repository {
 
     public static Commit getCommitById(String id) {
         File file = join(OBJECTS_DIR, id);
+        if (!file.exists())
+            return null;
         return readObject(file, Commit.class);
     }
 

@@ -71,4 +71,16 @@ public class Commit implements Serializable {
     public String getId() {
         return id;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public List<String> getParentRefs() {
+        return parentRefs;
+    }
 }
