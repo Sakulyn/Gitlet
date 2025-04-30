@@ -30,13 +30,13 @@ public class Commit implements Serializable {
     private String message; // log message
     private String timestamp; // commit time
     private String id; // Sha-1 id
-    private Map<String, String> blobReferences;  // 路径到 id 的映射
-    private List<String> parentReferences;
+    private Map<String, String> pathToBlobRef;  // 路径到 blob 引用的映射
+    private List<String> parentRefs;
     /* TODO: fill in the rest of this class. */
 
     public Commit() {
-        blobReferences = new HashMap<>();
-        parentReferences = new ArrayList<>();
+        pathToBlobRef = new HashMap<>();
+        parentRefs = new ArrayList<>();
         message = "initial commit";
         timestamp = dateToTimestamp(new Date(0));
         id = generateId();
@@ -53,7 +53,11 @@ public class Commit implements Serializable {
     }
 
     public String generateId() {
-        return sha1(blobReferences.toString(), parentReferences.toString(), message, timestamp);
+        return sha1(pathToBlobRef.toString(), parentRefs.toString(), message, timestamp);
+    }
+
+    public Map<String, String> getPathToBlobRef() {
+        return pathToBlobRef;
     }
 
     public String getId() {

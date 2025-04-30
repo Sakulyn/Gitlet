@@ -1,11 +1,10 @@
 package gitlet;
 
 import java.io.File;
-
+import java.util.Map;
+// TODO: any imports you need here
 import static gitlet.Main.exitWithMsg;
 import static gitlet.Utils.*;
-
-// TODO: any imports you need here
 
 /**
  * Represents a gitlet repository.
@@ -45,6 +44,9 @@ public class Repository {
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
     public static final File HEADS_DIR = join(REFS_DIR, "heads");
     public static String curBranch = "master";
+    public static Commit curCommit;
+    public static Map<String, String> curAddStageMap;
+    public static Map<String, String> curRemoveStageMap;
 
     /* TODO: fill in the rest of this class. */
     public static void init() {
@@ -58,5 +60,71 @@ public class Repository {
         commit.save();
         writeContents(HEAD, curBranch);
         writeContents(master, commit.getId());
+    }
+
+    public static void add(String filename) {
+        File file = join(CWD, filename);
+        checkFileIsExist(file);
+        getCurStage();
+        curCommit = getCurCommit();
+        Blob blob = new Blob(filename, readContents(file));
+        String blobId = blob.getId();
+        Map<String, String> pathToBlobRef = curCommit.getPathToBlobRef();
+        if(pathToBlobRef.containsKey(blobId) && pathToBlobRef.get(filename).equals(blobId)) {
+            curAddStageMap.remove(filename);
+        } else {
+            blob.save();
+            curAddStageMap.put(filename, blobId);
+        }
+        Stage stage = new Stage(curAddStageMap, curRemoveStageMap);
+        stage.save();
+    }
+
+    public static void getCurStage() {
+        Stage curStage = new Stage();
+        if(INDEX.exists()) {
+            curStage = readObject(INDEX, Stage.class);
+        }
+        curAddStageMap = curStage.getAddStageMap();
+        curRemoveStageMap = curStage.getRemoveStageMap();
+    }
+
+    public static Commit getCurCommit() {
+        curBranch = getCurBranch();
+        String commitId = getLatestCommitIdOfBranch(curBranch);
+        return getCommitById(commitId);
+    }
+
+    public static Commit getCommitById(String id) {
+        File file = join(OBJECTS_DIR, id);
+        return readObject(file, Commit.class);
+    }
+
+    public static String getLatestCommitIdOfBranch(String branchName) {
+        File file = join(HEADS_DIR, branchName);
+        return readContentAsString(file);
+    }
+
+    public static String getCurBranch() {
+        return readContentAsString(HEAD);
+    }
+
+    public static String readContentAsString(File file) {
+        return bytesToString(readContents(file));
+    }
+
+    public static String bytesToString(byte[] bytes) {
+        return new String(bytes);
+    }
+
+    public static void checkFileIsExist(File file) {
+        if(!file.exists()) {
+            exitWithMsg("File does not exist.");
+        }
+    }
+
+    public static void checkFileIsExist(String dir, String filename) {
+        File file = join(dir, filename);
+        checkFileIsExist(file);
     }
 }

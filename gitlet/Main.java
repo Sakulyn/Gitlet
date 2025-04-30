@@ -27,14 +27,29 @@ public class Main {
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
+                checkNumberOfOperands(inputSize, 2);
+                Repository.add(args[1]);
                 break;
             // TODO: FILL THE REST IN
+            default:
+                exitWithMsg("No command with that name exists.");
         }
+    }
+
+    public static void checkNumberOfOperands(int input, int target) {
+        checkInitialization();
+        if(input != target) {
+            exitWithMsg("Incorrect operands.");
+        }
+    }
+
+    public static void checkInitialization() {
+        if(!Repository.GITLET_DIR.exists())
+            exitWithMsg("Not in an initialized Gitlet directory.");
     }
 
     public static void exitWithMsg(String msg) {
         System.out.println(msg);
         System.exit(0);
     }
-
 }
