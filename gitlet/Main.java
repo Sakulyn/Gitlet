@@ -47,6 +47,10 @@ public class Main {
                 checkNumberOfOperands(inputSize, 1);
                 Repository.globalLog();
                 break;
+            case "find":
+                checkNumberOfOperands(inputSize, 2);
+                Repository.find(args[1]);
+                break;
             default:
                 exitWithMsg("No command with that name exists.");
         }

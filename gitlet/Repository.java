@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 // TODO: any imports you need here
@@ -89,7 +90,8 @@ public class Repository {
         if (message.isEmpty()) {
             exitWithMsg("Please enter a commit message.");
         }
-        Map<String, String> pathToBlobRef = curAddStageMap;
+        Map<String, String> pathToBlobRef = new HashMap<>();
+        pathToBlobRef.putAll(curAddStageMap);
         pathToBlobRef.putAll(curRemoveStageMap);
         String curCommitId = getCurCommitId();
         List<String> parentRefs = new ArrayList<>();
@@ -105,7 +107,7 @@ public class Repository {
         File file = getFile(CWD, filename);
         getCurStage();
         curCommit = getCurCommit();
-        Map<String, String> pathToBlobRef = curAddStageMap;
+        Map<String, String> pathToBlobRef = curCommit.getPathToBlobRef();
         if (curAddStageMap.containsKey(filename)) {
             curAddStageMap.remove(filename);
         } else if (pathToBlobRef.containsKey(filename)) {
@@ -145,7 +147,27 @@ public class Repository {
                 File file = join(OBJECTS_DIR, filename);
                 Commit commit = readObject(file, Commit.class);
                 displayCommit(commit);
-            } catch (Exception e) {}
+            } catch (Exception ignored) {}
+        }
+    }
+
+    public static void find(String message) {
+        boolean found = false;
+        List<String> filenames = plainFilenamesIn(OBJECTS_DIR);
+        if (filenames != null) {
+            for (String filename : filenames) {
+                try {
+                    File file = join(OBJECTS_DIR, filename);
+                    Commit commit = readObject(file, Commit.class);
+                    if(commit.getMessage().equals(message)) {
+                        System.out.println(commit.getId());
+                        found = true;
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        if (!found ) {
+            exitWithMsg("Found no commit with that message.");
         }
     }
 
@@ -154,14 +176,14 @@ public class Repository {
         System.out.println("===");
         System.out.println("commit " + commit.getId());
         if (parentRefs.size() > 1) {
-            System.out.printf("Merge:");
+            System.out.print("Merge:");
             for (String parent : parentRefs) {
-                System.out.printf(" " + parent.substring(7));
+                System.out.print(" " + parent.substring(7));
             }
         }
         System.out.println("Date: " + commit.getTimestamp());
         System.out.println(commit.getMessage() + "\n");
-        if (parentRefs.size() == 0)
+        if (parentRefs.isEmpty())
             return null;
         return getCommitById(parentRefs.get(0));
     }
@@ -187,8 +209,7 @@ public class Repository {
 
     public static String getCurCommitId() {
         curBranch = getCurBranch();
-        String commitId = getLatestCommitIdOfBranch(curBranch);
-        return commitId;
+        return getLatestCommitIdOfBranch(curBranch);
     }
 
     public static Commit getCommitById(String id) {
