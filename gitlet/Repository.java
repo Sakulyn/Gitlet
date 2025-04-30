@@ -171,6 +171,32 @@ public class Repository {
         }
     }
 
+    public static void status() {
+        System.out.println("=== Branches ===");
+        curBranch = getCurBranch();
+        List<String> branchNames = plainFilenamesIn(HEADS_DIR);
+        if (branchNames != null) {
+            for (String branchName : branchNames) {
+                if(branchName.equals(curBranch)) {
+                    System.out.print("*");
+                }
+                System.out.println(branchName);
+            }
+        }
+        System.out.println("\n=== Staged Files ===");
+        getCurStage();
+        for(String stageFile: curAddStageMap.keySet()) {
+            System.out.println(stageFile);
+        }
+        System.out.println("\n=== Removed Files ===");
+        for(String stageFile: curRemoveStageMap.keySet()) {
+            System.out.println(stageFile);
+        }
+        System.out.println("\n=== Modifications Not Staged For Commit ===");
+        System.out.println("\n=== Untracked Files ===");
+        System.out.println();
+    }
+
     public static Commit displayCommit(Commit commit) {
         List<String> parentRefs = commit.getParentRefs();
         System.out.println("===");
