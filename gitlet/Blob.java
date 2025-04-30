@@ -21,7 +21,7 @@ public class Blob implements Serializable {
         writeObject(file, this);
     }
     public String generateId() {
-        return sha1(pathOfRawFile, bytes.toString());
+        return sha1(pathOfRawFile, bytes);
     }
     public String getId() {
         return id;
