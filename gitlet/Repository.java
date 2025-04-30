@@ -65,14 +65,13 @@ public class Repository {
     }
 
     public static void add(String filename) {
-        File file = join(CWD, filename);
-        checkFileIsExist(file);
+        File file = getFile(CWD, filename);
         getCurStage();
         curCommit = getCurCommit();
         Blob blob = new Blob(filename, readContents(file));
         String blobId = blob.getId();
         Map<String, String> pathToBlobRef = curCommit.getPathToBlobRef();
-        if(pathToBlobRef.containsKey(blobId) && pathToBlobRef.get(filename).equals(blobId)) {
+        if (pathToBlobRef.containsKey(blobId) && pathToBlobRef.get(filename).equals(blobId)) {
             curAddStageMap.remove(filename);
         } else {
             blob.save();
@@ -84,10 +83,10 @@ public class Repository {
 
     public static void commit(String message) {
         getCurStage();
-        if(curAddStageMap.isEmpty() && curRemoveStageMap.isEmpty()) {
+        if (curAddStageMap.isEmpty() && curRemoveStageMap.isEmpty()) {
             exitWithMsg("No changes added to the commit.");
         }
-        if(message.isEmpty()) {
+        if (message.isEmpty()) {
             exitWithMsg("Please enter a commit message.");
         }
         Map<String, String> pathToBlobRef = curAddStageMap;
@@ -102,6 +101,28 @@ public class Repository {
         writeContents(curBranchFile, commit.getId());
     }
 
+    public static void rm(String filename) {
+        File file = getFile(CWD, filename);
+        getCurStage();
+        curCommit = getCurCommit();
+        Map<String, String> pathToBlobRef = curAddStageMap;
+        if (curAddStageMap.containsKey(filename)) {
+            curAddStageMap.remove(filename);
+        } else if (pathToBlobRef.containsKey(filename)) {
+            if (file.exists()) {
+                Blob blob = new Blob(filename, readContents(file));
+                blob.save();
+                curRemoveStageMap.put(filename, blob.getId());
+                file.delete();
+            } else
+                curRemoveStageMap.put(filename, pathToBlobRef.get(filename));
+        } else {
+            exitWithMsg("No reason to remove the file.");
+        }
+        Stage stage = new Stage(curAddStageMap, curRemoveStageMap);
+        stage.save();
+    }
+
     public static void clearStage() {
         Stage stage = new Stage();
         stage.save();
@@ -109,7 +130,7 @@ public class Repository {
 
     public static void getCurStage() {
         Stage curStage = new Stage();
-        if(INDEX.exists()) {
+        if (INDEX.exists()) {
             curStage = readObject(INDEX, Stage.class);
         }
         curAddStageMap = curStage.getAddStageMap();
@@ -150,13 +171,14 @@ public class Repository {
     }
 
     public static void checkFileIsExist(File file) {
-        if(!file.exists()) {
+        if (!file.exists()) {
             exitWithMsg("File does not exist.");
         }
     }
 
-    public static void checkFileIsExist(String dir, String filename) {
+    public static File getFile(File dir, String filename) {
         File file = join(dir, filename);
         checkFileIsExist(file);
+        return file;
     }
 }

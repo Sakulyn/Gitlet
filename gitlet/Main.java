@@ -35,6 +35,10 @@ public class Main {
                 checkNumberOfOperands(inputSize, 2);
                 Repository.commit(args[1]);
                 break;
+            case "rm":
+                checkNumberOfOperands(inputSize, 2);
+                Repository.rm(args[1]);
+                break;
             default:
                 exitWithMsg("No command with that name exists.");
         }
