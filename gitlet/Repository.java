@@ -245,6 +245,17 @@ public class Repository {
         writeContents(file, commitId);
     }
 
+    public static void rmBranch(String branchName) {
+        if (!checkBranchIsExist(branchName)) {
+            exitWithMsg("A branch with that name does not exist.");
+        }
+        if (getCurBranch().equals(branchName)) {
+            exitWithMsg("Cannot remove the current branch.");
+        }
+        File file = join(HEADS_DIR, branchName);
+        file.delete();
+    }
+
     public static boolean checkBranchIsExist(String branchName) {
         List<String> branchNames = plainFilenamesIn(HEADS_DIR);
         if (branchNames.contains(branchName)) {

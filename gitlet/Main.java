@@ -83,6 +83,10 @@ public class Main {
                 checkNumberOfOperands(inputSize, 2);
                 Repository.branch(args[1]);
                 break;
+            case "rm-branch":
+                checkNumberOfOperands(inputSize, 2);
+                Repository.rmBranch(args[1]);
+                break;
             default:
                 exitWithMsg("No command with that name exists.");
         }
