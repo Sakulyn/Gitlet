@@ -79,6 +79,10 @@ public class Main {
                     exitWithMsg("Incorrect operands.");
                 }
                 break;
+            case "branch":
+                checkNumberOfOperands(inputSize, 2);
+                Repository.branch(args[1]);
+                break;
             default:
                 exitWithMsg("No command with that name exists.");
         }
