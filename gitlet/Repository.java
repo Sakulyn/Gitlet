@@ -212,27 +212,8 @@ public class Repository {
         if (curBranch.equals(branchName)) {
             exitWithMsg("No need to checkout the current branch.");
         }
-        Set<String> untrackedFilenames = getUntrackedFiles();
-        if (!untrackedFilenames.isEmpty()) {
-            exitWithMsg("There is an untracked file in the way; delete it, or add and commit it first.");
-        }
         String commitId = getLatestCommitIdOfBranch(branchName);
-        Commit commit = getCommitById(commitId);
-        Map<String, String> filenameToBlobRef = commit.getFilenameToBlobRef();
-        for (String filename : filenameToBlobRef.keySet()) {
-            File fileToRead = join(OBJECTS_DIR, filenameToBlobRef.get(filename));
-            File fileToWrite = join(CWD, filename);
-            Blob blob = readObject(fileToRead, Blob.class);
-            writeContents(fileToWrite, blob.getBytes());
-        }
-        curCommit = getCurCommit();
-        Map<String, String> curFilenameToBlobRef = curCommit.getFilenameToBlobRef();
-        for (String filename : curFilenameToBlobRef.keySet()) {
-            if (!filenameToBlobRef.containsKey(filename)) {
-                File file = join(CWD, filename);
-                file.delete();
-            }
-        }
+        restoreAllFilesFromCommit(commitId);
         writeContents(HEAD, branchName);
     }
 
@@ -254,6 +235,21 @@ public class Repository {
         }
         File file = join(HEADS_DIR, branchName);
         file.delete();
+    }
+
+    public static void reset(String commitId) {
+        commitId = matchCommitId(commitId);
+        restoreAllFilesFromCommit(commitId);
+        File file = join(HEADS_DIR, getCurBranch());
+        writeContents(file, commitId);
+        clearStage();
+    }
+
+    public static void checkIsFileUntracked() {
+        Set<String> untrackedFilenames = getUntrackedFiles();
+        if (!untrackedFilenames.isEmpty()) {
+            exitWithMsg("There is an untracked file in the way; delete it, or add and commit it first.");
+        }
     }
 
     public static boolean checkBranchIsExist(String branchName) {
@@ -280,16 +276,37 @@ public class Repository {
         return untrackedFilenames;
     }
 
+    public static void restoreAllFilesFromCommit(String commitId) {
+        checkIsFileUntracked();
+        Commit commit = getCommitById(commitId);
+        Map<String, String> filenameToBlobRef = commit.getFilenameToBlobRef();
+        for (String filename : filenameToBlobRef.keySet()) {
+            restoreFileFromBlob(filenameToBlobRef.get(filename), filename);
+        }
+        curCommit = getCurCommit();
+        Map<String, String> curFilenameToBlobRef = curCommit.getFilenameToBlobRef();
+        for (String filename : curFilenameToBlobRef.keySet()) {
+            if (!filenameToBlobRef.containsKey(filename)) {
+                File file = join(CWD, filename);
+                file.delete();
+            }
+        }
+    }
+
+    public static void restoreFileFromBlob(String blobId, String filename) {
+        File fileToRead = join(OBJECTS_DIR, blobId);
+        File fileToWrite = join(CWD, filename);
+        Blob blob = readObject(fileToRead, Blob.class);
+        writeContents(fileToWrite, blob.getBytes());
+    }
+
     public static void restoreFileFromCommit(String commitId, String filename) {
         Commit commit = getCommitById(commitId);
         Map<String, String> filenameToBlobRef = commit.getFilenameToBlobRef();
         if (!filenameToBlobRef.containsKey(filename)) {
             exitWithMsg("File does not exist in that commit.");
         }
-        File fileToRead = join(OBJECTS_DIR, filenameToBlobRef.get(filename));
-        File fileToWrite = join(CWD, filename);
-        Blob blob = readObject(fileToRead, Blob.class);
-        writeContents(fileToWrite, blob.getBytes());
+        restoreFileFromBlob(filenameToBlobRef.get(filename), filename);
     }
 
     public static String matchCommitId(String commitId) {

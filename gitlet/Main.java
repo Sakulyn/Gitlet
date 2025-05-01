@@ -87,6 +87,10 @@ public class Main {
                 checkNumberOfOperands(inputSize, 2);
                 Repository.rmBranch(args[1]);
                 break;
+            case "reset":
+                checkNumberOfOperands(inputSize, 2);
+                Repository.reset(args[1]);
+                break;
             default:
                 exitWithMsg("No command with that name exists.");
         }
