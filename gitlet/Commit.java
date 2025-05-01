@@ -30,20 +30,20 @@ public class Commit implements Serializable {
     private String message; // log message
     private String timestamp; // commit time
     private String id; // Sha-1 id
-    private Map<String, String> pathToBlobRef;  // 路径到 blob 引用的映射
+    private Map<String, String> filenameToBlobRef;  // 文件名（不考虑子目录下文件）到 blob 引用的映射
     private List<String> parentRefs;
     /* TODO: fill in the rest of this class. */
 
     public Commit() {
-        pathToBlobRef = new HashMap<>();
+        filenameToBlobRef = new HashMap<>();
         parentRefs = new ArrayList<>();
         message = "initial commit";
         timestamp = dateToTimestamp(new Date(0));
         id = generateId();
     }
 
-    public Commit(String message, Map<String, String> pathToBlobRef, List<String> parentRefs) {
-        this.pathToBlobRef = pathToBlobRef;
+    public Commit(String message, Map<String, String> filenameToBlobRef, List<String> parentRefs) {
+        this.filenameToBlobRef = filenameToBlobRef;
         this.parentRefs = parentRefs;
         this.message = message;
         this.timestamp = dateToTimestamp(new Date());
@@ -61,11 +61,11 @@ public class Commit implements Serializable {
     }
 
     public String generateId() {
-        return sha1(pathToBlobRef.toString(), parentRefs.toString(), message, timestamp);
+        return sha1(filenameToBlobRef.toString(), parentRefs.toString(), message, timestamp);
     }
 
-    public Map<String, String> getPathToBlobRef() {
-        return pathToBlobRef;
+    public Map<String, String> getFilenameToBlobRef() {
+        return filenameToBlobRef;
     }
 
     public String getId() {

@@ -9,8 +9,8 @@ import static gitlet.Utils.writeObject;
 
 
 public class Stage implements Serializable {
-    private Map<String, String> addStageMap; // pathToBlobRefOfAddStage
-    private Map<String, String> removeStageMap; // pathToBlobRefOfRemoveStage
+    private Map<String, String> addStageMap; // nameToBlobRefOfAddStage
+    private Map<String, String> removeStageMap; // nameToBlobRefOfRemoveStage
 
     public Stage() {
         this.addStageMap = new HashMap<>();
