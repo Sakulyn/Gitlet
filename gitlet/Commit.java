@@ -1,7 +1,5 @@
 package gitlet;
 
-// TODO: any imports you need here
-
 import java.io.File;
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -12,27 +10,16 @@ import static gitlet.Repository.OBJECTS_DIR;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
- *  does at a high level.
  *
  *  @author Sakulyn
  */
 public class Commit implements Serializable {
-    /**
-     * TODO: add instance variables here.
-     *
-     * List all instance variables of the Commit class here with a useful
-     * comment above them describing what that variable represents and how that
-     * variable is used. We've provided one example for `message`.
-     */
-
     /** The message of this Commit. */
     private String message; // log message
     private String timestamp; // commit time
     private String id; // Sha-1 id
     private Map<String, String> filenameToBlobRef;  // 文件名（不考虑子目录下文件）到 blob 引用的映射
     private List<String> parentRefs;
-    /* TODO: fill in the rest of this class. */
 
     public Commit() {
         filenameToBlobRef = new HashMap<>();

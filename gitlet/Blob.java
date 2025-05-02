@@ -6,15 +6,20 @@ import java.io.Serializable;
 import static gitlet.Repository.OBJECTS_DIR;
 import static gitlet.Utils.*;
 
+/** Represents a gitlet blob object.
+ *  blob 只与文件内容有关，与文件名、路径等元数据无关。
+ *  blob 的 id 即 SHA-1 哈希值由文件内容计算得出。
+ *  如果两个文件内容完全相同，gitlet 会复用该对象以节省空间。
+ *
+ *  @author Sakulyn
+ */
 public class Blob implements Serializable {
     private String id;
-    private String nameOfRawFile;
     private byte[] bytes;
 
-    public Blob(String nameOfRawFile, byte[] bytes) {
-        this.nameOfRawFile = nameOfRawFile;
+    public Blob(byte[] bytes) {
         this.bytes = bytes;
-        this.id = generateId();
+        this.id = sha1(bytes);
     }
 
     public void save() {
@@ -22,16 +27,8 @@ public class Blob implements Serializable {
         writeObject(file, this);
     }
 
-    public String generateId() {
-        return sha1(nameOfRawFile, bytes);
-    }
-
     public String getId() {
         return id;
-    }
-
-    public String getNameOfRawFile() {
-        return nameOfRawFile;
     }
 
     public byte[] getBytes() {

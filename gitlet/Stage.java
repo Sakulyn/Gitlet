@@ -25,6 +25,7 @@ public class Stage implements Serializable {
     public void save() {
         writeObject(INDEX, this);
     }
+
     public Map<String, String> getAddStageMap() {
         return addStageMap;
     }
