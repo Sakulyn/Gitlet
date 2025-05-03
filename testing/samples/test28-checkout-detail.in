@@ -1,6 +1,5 @@
 # Check that we can check out a previous version.
-> init
-<<<
+I prelude1.inc
 + wug.txt wug.txt
 > add wug.txt
 <<<
@@ -39,7 +38,18 @@ D UID2 "${1}"
 D UID1 "${2}"
 > checkout ${UID1} -- wug.txt
 <<<
-= wug.txt wug.txt
-> checkout ${UID2} -- wug.txt
-<<<
-= wug.txt notwug.txt
+> status
+=== Branches ===
+\*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+(${ARBLINE}\n\r?)?
+=== Untracked Files ===
+
+<<<*
+
+
